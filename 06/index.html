@@ -3,7 +3,7 @@
 <head><meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>index</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>BSmodel PRICING 2</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 
 
 
@@ -14579,29 +14579,1479 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Options">Options<a class="anchor-link" href="#Options">&#182;</a></h1>
+<h1 id="BS-PRICING">BS PRICING<a class="anchor-link" href="#BS-PRICING">&#182;</a></h1>
 </div>
 </div>
 </div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<ul>
-<li><a href="01/index">Volatility Smile</a></li>
-<li><a href="02/index">Volatility Surface</a></li>
-<li><a href="03/index">Implied Volatility Calculator</a></li>
-<li><a href="04/index">Volatility Structures</a></li>
-<li><a href="05/index">PUT/CALL/STOCK Correlation</a></li>
-<li><a href="06/index">Black-Scholes model Price Calculator</a></li>
-</ul>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[42]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">yfinance</span> <span class="k">as</span> <span class="nn">yf</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[43]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#stock data</span>
+<span class="n">symbol</span> <span class="o">=</span> <span class="s2">"^SPX"</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">yf</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">symbol</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="s2">"2023-01-01"</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="s2">"1d"</span><span class="p">)[</span><span class="s2">"Close"</span><span class="p">]</span>
+<span class="n">S0</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="c1">#historical volatility</span>
+<span class="n">log_returns</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">data</span><span class="o">/</span><span class="n">data</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">HV</span> <span class="o">=</span> <span class="n">log_returns</span><span class="o">.</span><span class="n">std</span><span class="p">()</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">252</span><span class="p">)</span>
+<span class="c1">#r </span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">yf</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s2">"^IRX"</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="s2">"2022-01-01"</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="s2">"1d"</span><span class="p">)[</span><span class="s2">"Close"</span><span class="p">]</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="mi">100</span>
+<span class="n">S0</span><span class="p">,</span> <span class="n">HV</span><span class="p">,</span> <span class="n">r</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>[*********************100%***********************]  1 of 1 completed
+[*********************100%***********************]  1 of 1 completed
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[43]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>(4450.31982421875, 0.1341594453653171, 0.05297999858856201)</pre>
+</div>
 
 </div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[49]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># option data</span>
+<span class="n">symbol</span> <span class="o">=</span> <span class="s2">"^SPX"</span>
+<span class="n">ticker</span> <span class="o">=</span> <span class="n">yf</span><span class="o">.</span><span class="n">Ticker</span><span class="p">(</span><span class="n">symbol</span><span class="p">)</span>
+<span class="n">ticker</span><span class="o">.</span><span class="n">options</span>
+<span class="n">exp_date</span> <span class="o">=</span> <span class="n">ticker</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="mi">22</span><span class="p">]</span>
+<span class="n">option_chain</span> <span class="o">=</span> <span class="n">ticker</span><span class="o">.</span><span class="n">option_chain</span><span class="p">(</span><span class="n">exp_date</span><span class="p">)</span>
+<span class="n">calls</span> <span class="o">=</span> <span class="n">option_chain</span><span class="o">.</span><span class="n">calls</span>
+<span class="n">calls</span>
+<span class="c1"># Filter out SPXW options</span>
+<span class="n">calls</span> <span class="o">=</span> <span class="n">calls</span><span class="p">[</span><span class="o">~</span><span class="n">calls</span><span class="p">[</span><span class="s1">'contractSymbol'</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s1">'SPXW'</span><span class="p">)]</span>
+
+<span class="c1"># Now, 'calls' DataFrame contains only non-SPXW options</span>
+<span class="n">calls</span>
+</pre></div>
+
+     </div>
 </div>
 </div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[49]:</div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>contractSymbol</th>
+      <th>lastTradeDate</th>
+      <th>strike</th>
+      <th>lastPrice</th>
+      <th>bid</th>
+      <th>ask</th>
+      <th>change</th>
+      <th>percentChange</th>
+      <th>volume</th>
+      <th>openInterest</th>
+      <th>impliedVolatility</th>
+      <th>inTheMoney</th>
+      <th>contractSize</th>
+      <th>currency</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>3</th>
+      <td>SPX231020C00800000</td>
+      <td>2023-09-15 19:26:52+00:00</td>
+      <td>800.0</td>
+      <td>3653.30</td>
+      <td>3620.7</td>
+      <td>3674.70</td>
+      <td>3.900146</td>
+      <td>0.106871</td>
+      <td>1.0</td>
+      <td>67</td>
+      <td>3.055239</td>
+      <td>True</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>SPX231020C01000000</td>
+      <td>2023-09-13 18:31:00+00:00</td>
+      <td>1000.0</td>
+      <td>3472.87</td>
+      <td>3437.1</td>
+      <td>3464.70</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>201.0</td>
+      <td>3695</td>
+      <td>1.639162</td>
+      <td>True</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>SPX231020C01200000</td>
+      <td>2023-06-15 17:17:51+00:00</td>
+      <td>1200.0</td>
+      <td>3205.84</td>
+      <td>0.0</td>
+      <td>0.00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>6.0</td>
+      <td>0</td>
+      <td>0.000010</td>
+      <td>True</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>SPX231020C01700000</td>
+      <td>2023-05-05 19:38:46+00:00</td>
+      <td>1700.0</td>
+      <td>2453.91</td>
+      <td>0.0</td>
+      <td>0.00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>1.0</td>
+      <td>0</td>
+      <td>0.000010</td>
+      <td>True</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>SPX231020C01900000</td>
+      <td>2023-04-25 17:47:31+00:00</td>
+      <td>1900.0</td>
+      <td>2205.21</td>
+      <td>0.0</td>
+      <td>0.00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0.000010</td>
+      <td>True</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>282</th>
+      <td>SPX231020C05400000</td>
+      <td>2023-08-17 18:03:36+00:00</td>
+      <td>5400.0</td>
+      <td>0.08</td>
+      <td>0.0</td>
+      <td>0.10</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>5.0</td>
+      <td>308</td>
+      <td>0.202156</td>
+      <td>False</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+    </tr>
+    <tr>
+      <th>284</th>
+      <td>SPX231020C05600000</td>
+      <td>2023-08-15 14:24:22+00:00</td>
+      <td>5600.0</td>
+      <td>0.07</td>
+      <td>0.0</td>
+      <td>0.05</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>2.0</td>
+      <td>2875</td>
+      <td>0.223641</td>
+      <td>False</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+    </tr>
+    <tr>
+      <th>286</th>
+      <td>SPX231020C05800000</td>
+      <td>2023-08-18 15:39:14+00:00</td>
+      <td>5800.0</td>
+      <td>0.05</td>
+      <td>0.0</td>
+      <td>0.05</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>10.0</td>
+      <td>522</td>
+      <td>0.254890</td>
+      <td>False</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+    </tr>
+    <tr>
+      <th>290</th>
+      <td>SPX231020C06400000</td>
+      <td>2023-06-06 19:13:36+00:00</td>
+      <td>6400.0</td>
+      <td>0.06</td>
+      <td>0.0</td>
+      <td>0.00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>8.0</td>
+      <td>0</td>
+      <td>0.250007</td>
+      <td>False</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+    </tr>
+    <tr>
+      <th>292</th>
+      <td>SPX231020C06800000</td>
+      <td>2023-08-11 16:36:26+00:00</td>
+      <td>6800.0</td>
+      <td>0.05</td>
+      <td>0.0</td>
+      <td>0.10</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>2.0</td>
+      <td>418</td>
+      <td>0.412115</td>
+      <td>False</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+    </tr>
+  </tbody>
+</table>
+<p>173 rows × 14 columns</p>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[45]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">savedata</span> <span class="o">=</span> <span class="n">calls</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s2">"SPXCall201023Datigrezzi.csv"</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[46]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">calls</span> <span class="o">=</span> <span class="n">calls</span><span class="p">[</span><span class="n">calls</span><span class="p">[</span><span class="s2">"openInterest"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">500</span><span class="p">]</span>
+<span class="n">calls</span> <span class="o">=</span> <span class="n">calls</span><span class="p">[</span><span class="n">calls</span><span class="p">[</span><span class="s2">"volume"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">]</span>
+<span class="n">calls</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[46]:</div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>contractSymbol</th>
+      <th>lastTradeDate</th>
+      <th>strike</th>
+      <th>lastPrice</th>
+      <th>bid</th>
+      <th>ask</th>
+      <th>change</th>
+      <th>percentChange</th>
+      <th>volume</th>
+      <th>openInterest</th>
+      <th>impliedVolatility</th>
+      <th>inTheMoney</th>
+      <th>contractSize</th>
+      <th>currency</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>4</th>
+      <td>SPX231020C01000000</td>
+      <td>2023-09-13 18:31:00+00:00</td>
+      <td>1000.0</td>
+      <td>3472.87</td>
+      <td>3437.10</td>
+      <td>3464.70</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>201.0</td>
+      <td>3695</td>
+      <td>1.639162</td>
+      <td>True</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+    </tr>
+    <tr>
+      <th>70</th>
+      <td>SPX231020C03825000</td>
+      <td>2023-09-07 11:49:11+00:00</td>
+      <td>3825.0</td>
+      <td>647.37</td>
+      <td>615.90</td>
+      <td>669.10</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>213.0</td>
+      <td>589</td>
+      <td>0.455106</td>
+      <td>True</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+    </tr>
+    <tr>
+      <th>157</th>
+      <td>SPX231020C04325000</td>
+      <td>2023-09-15 19:55:08+00:00</td>
+      <td>4325.0</td>
+      <td>169.48</td>
+      <td>164.60</td>
+      <td>174.60</td>
+      <td>-48.570007</td>
+      <td>-22.274710</td>
+      <td>207.0</td>
+      <td>1378</td>
+      <td>0.181260</td>
+      <td>True</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+    </tr>
+    <tr>
+      <th>172</th>
+      <td>SPX231020C04400000</td>
+      <td>2023-09-15 17:57:05+00:00</td>
+      <td>4400.0</td>
+      <td>112.51</td>
+      <td>105.20</td>
+      <td>114.20</td>
+      <td>-37.290000</td>
+      <td>-24.893192</td>
+      <td>131.0</td>
+      <td>13194</td>
+      <td>0.156396</td>
+      <td>True</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+    </tr>
+    <tr>
+      <th>177</th>
+      <td>SPX231020C04425000</td>
+      <td>2023-09-15 18:37:38+00:00</td>
+      <td>4425.0</td>
+      <td>92.60</td>
+      <td>87.40</td>
+      <td>96.10</td>
+      <td>-39.860010</td>
+      <td>-30.092108</td>
+      <td>381.0</td>
+      <td>4585</td>
+      <td>0.148938</td>
+      <td>True</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+    </tr>
+    <tr>
+      <th>182</th>
+      <td>SPX231020C04450000</td>
+      <td>2023-09-15 20:15:46+00:00</td>
+      <td>4450.0</td>
+      <td>75.70</td>
+      <td>71.40</td>
+      <td>78.80</td>
+      <td>-33.350006</td>
+      <td>-30.582306</td>
+      <td>1729.0</td>
+      <td>24370</td>
+      <td>0.141015</td>
+      <td>True</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+    </tr>
+    <tr>
+      <th>184</th>
+      <td>SPX231020C04460000</td>
+      <td>2023-09-15 19:59:25+00:00</td>
+      <td>4460.0</td>
+      <td>68.20</td>
+      <td>65.40</td>
+      <td>72.50</td>
+      <td>-38.900000</td>
+      <td>-36.321198</td>
+      <td>138.0</td>
+      <td>945</td>
+      <td>0.138356</td>
+      <td>False</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+    </tr>
+    <tr>
+      <th>187</th>
+      <td>SPX231020C04475000</td>
+      <td>2023-09-15 19:59:28+00:00</td>
+      <td>4475.0</td>
+      <td>59.20</td>
+      <td>56.70</td>
+      <td>63.40</td>
+      <td>-35.800000</td>
+      <td>-37.684210</td>
+      <td>640.0</td>
+      <td>4152</td>
+      <td>0.134286</td>
+      <td>False</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+    </tr>
+    <tr>
+      <th>190</th>
+      <td>SPX231020C04490000</td>
+      <td>2023-09-15 19:55:10+00:00</td>
+      <td>4490.0</td>
+      <td>51.70</td>
+      <td>46.80</td>
+      <td>56.90</td>
+      <td>-28.999996</td>
+      <td>-35.935560</td>
+      <td>715.0</td>
+      <td>2143</td>
+      <td>0.134030</td>
+      <td>False</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+    </tr>
+    <tr>
+      <th>195</th>
+      <td>SPX231020C04515000</td>
+      <td>2023-09-15 20:14:50+00:00</td>
+      <td>4515.0</td>
+      <td>40.80</td>
+      <td>38.90</td>
+      <td>40.50</td>
+      <td>-21.830002</td>
+      <td>-34.855503</td>
+      <td>163.0</td>
+      <td>923</td>
+      <td>0.121061</td>
+      <td>False</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+    </tr>
+    <tr>
+      <th>198</th>
+      <td>SPX231020C04530000</td>
+      <td>2023-09-15 20:10:09+00:00</td>
+      <td>4530.0</td>
+      <td>33.45</td>
+      <td>32.00</td>
+      <td>34.70</td>
+      <td>-22.849998</td>
+      <td>-40.586143</td>
+      <td>208.0</td>
+      <td>875</td>
+      <td>0.119352</td>
+      <td>False</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+    </tr>
+    <tr>
+      <th>200</th>
+      <td>SPX231020C04540000</td>
+      <td>2023-09-15 19:57:06+00:00</td>
+      <td>4540.0</td>
+      <td>29.23</td>
+      <td>28.20</td>
+      <td>30.80</td>
+      <td>-22.560001</td>
+      <td>-43.560535</td>
+      <td>103.0</td>
+      <td>842</td>
+      <td>0.117528</td>
+      <td>False</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+    </tr>
+    <tr>
+      <th>202</th>
+      <td>SPX231020C04550000</td>
+      <td>2023-09-15 20:09:01+00:00</td>
+      <td>4550.0</td>
+      <td>25.67</td>
+      <td>25.50</td>
+      <td>26.50</td>
+      <td>-20.330000</td>
+      <td>-44.195652</td>
+      <td>2489.0</td>
+      <td>20634</td>
+      <td>0.114286</td>
+      <td>False</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+    </tr>
+    <tr>
+      <th>203</th>
+      <td>SPX231020C04555000</td>
+      <td>2023-09-15 18:51:51+00:00</td>
+      <td>4555.0</td>
+      <td>24.98</td>
+      <td>23.70</td>
+      <td>25.10</td>
+      <td>-19.300000</td>
+      <td>-43.586270</td>
+      <td>128.0</td>
+      <td>1058</td>
+      <td>0.114045</td>
+      <td>False</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+    </tr>
+    <tr>
+      <th>212</th>
+      <td>SPX231020C04600000</td>
+      <td>2023-09-15 20:15:46+00:00</td>
+      <td>4600.0</td>
+      <td>13.35</td>
+      <td>12.90</td>
+      <td>13.40</td>
+      <td>-13.740000</td>
+      <td>-50.719822</td>
+      <td>6032.0</td>
+      <td>32512</td>
+      <td>0.107988</td>
+      <td>False</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+    </tr>
+    <tr>
+      <th>222</th>
+      <td>SPX231020C04650000</td>
+      <td>2023-09-15 20:10:09+00:00</td>
+      <td>4650.0</td>
+      <td>6.05</td>
+      <td>5.80</td>
+      <td>6.40</td>
+      <td>-6.950000</td>
+      <td>-53.461540</td>
+      <td>2100.0</td>
+      <td>15093</td>
+      <td>0.105020</td>
+      <td>False</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+    </tr>
+    <tr>
+      <th>226</th>
+      <td>SPX231020C04670000</td>
+      <td>2023-09-15 18:49:36+00:00</td>
+      <td>4670.0</td>
+      <td>4.20</td>
+      <td>4.10</td>
+      <td>4.50</td>
+      <td>-5.200000</td>
+      <td>-55.319150</td>
+      <td>305.0</td>
+      <td>994</td>
+      <td>0.103380</td>
+      <td>False</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+    </tr>
+    <tr>
+      <th>251</th>
+      <td>SPX231020C04800000</td>
+      <td>2023-09-15 19:59:57+00:00</td>
+      <td>4800.0</td>
+      <td>0.50</td>
+      <td>0.45</td>
+      <td>0.65</td>
+      <td>-0.600000</td>
+      <td>-54.545456</td>
+      <td>4926.0</td>
+      <td>9607</td>
+      <td>0.106881</td>
+      <td>False</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+    </tr>
+    <tr>
+      <th>274</th>
+      <td>SPX231020C05050000</td>
+      <td>2023-09-15 19:06:34+00:00</td>
+      <td>5050.0</td>
+      <td>0.07</td>
+      <td>0.00</td>
+      <td>0.15</td>
+      <td>-0.080000</td>
+      <td>-53.333336</td>
+      <td>401.0</td>
+      <td>1130</td>
+      <td>0.142587</td>
+      <td>False</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+    </tr>
+    <tr>
+      <th>276</th>
+      <td>SPX231020C05100000</td>
+      <td>2023-09-15 19:24:41+00:00</td>
+      <td>5100.0</td>
+      <td>0.07</td>
+      <td>0.05</td>
+      <td>0.15</td>
+      <td>-0.030000</td>
+      <td>-30.000002</td>
+      <td>146.0</td>
+      <td>4851</td>
+      <td>0.152596</td>
+      <td>False</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[47]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">savedata</span> <span class="o">=</span> <span class="n">calls</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s2">"SPXCall201023Datifiltrati.csv"</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[33]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">S0</span> <span class="o">=</span> <span class="n">S0</span> 
+<span class="n">sigma</span> <span class="o">=</span> <span class="n">HV</span> 
+<span class="n">T</span> <span class="o">=</span> <span class="mi">25</span> <span class="o">/</span> <span class="mi">252</span>  
+<span class="n">r</span> <span class="o">=</span> <span class="n">r</span> 
+<span class="n">strike_prices</span> <span class="o">=</span> <span class="n">calls</span><span class="p">[</span><span class="s2">"strike"</span><span class="p">]</span>
+
+<span class="c1"># Black-Scholes call option price</span>
+<span class="k">def</span> <span class="nf">calculate_option_price</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
+    <span class="n">d1</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">S0</span> <span class="o">/</span> <span class="n">K</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">r</span> <span class="o">+</span> <span class="p">(</span><span class="n">sigma</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">T</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">sigma</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">T</span><span class="p">))</span>
+    <span class="n">d2</span> <span class="o">=</span> <span class="n">d1</span> <span class="o">-</span> <span class="n">sigma</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+    <span class="n">option_price</span> <span class="o">=</span> <span class="n">S0</span> <span class="o">*</span> <span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">d1</span><span class="p">)</span> <span class="o">-</span> <span class="n">K</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">r</span> <span class="o">*</span> <span class="n">T</span><span class="p">)</span> <span class="o">*</span> <span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">d2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">option_price</span>
+
+<span class="n">calls</span><span class="p">[</span><span class="s2">"OptionPrice"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">strike_prices</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">calculate_option_price</span><span class="p">),</span><span class="mi">3</span><span class="p">)</span>
+
+
+<span class="n">calls</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">calls</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[33]:</div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>contractSymbol</th>
+      <th>lastTradeDate</th>
+      <th>strike</th>
+      <th>lastPrice</th>
+      <th>bid</th>
+      <th>ask</th>
+      <th>change</th>
+      <th>percentChange</th>
+      <th>volume</th>
+      <th>openInterest</th>
+      <th>impliedVolatility</th>
+      <th>inTheMoney</th>
+      <th>contractSize</th>
+      <th>currency</th>
+      <th>OptionPrice</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>4</th>
+      <td>SPX231020C01000000</td>
+      <td>2023-09-13 18:31:00+00:00</td>
+      <td>1000.0</td>
+      <td>3472.87</td>
+      <td>3437.10</td>
+      <td>3464.70</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>201.0</td>
+      <td>3695</td>
+      <td>1.639162</td>
+      <td>True</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+      <td>3455.562</td>
+    </tr>
+    <tr>
+      <th>70</th>
+      <td>SPX231020C03825000</td>
+      <td>2023-09-07 11:49:11+00:00</td>
+      <td>3825.0</td>
+      <td>647.37</td>
+      <td>615.90</td>
+      <td>669.10</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>213.0</td>
+      <td>589</td>
+      <td>0.455106</td>
+      <td>True</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+      <td>645.375</td>
+    </tr>
+    <tr>
+      <th>157</th>
+      <td>SPX231020C04325000</td>
+      <td>2023-09-15 19:55:08+00:00</td>
+      <td>4325.0</td>
+      <td>169.48</td>
+      <td>164.60</td>
+      <td>174.60</td>
+      <td>-48.570007</td>
+      <td>-22.274710</td>
+      <td>207.0</td>
+      <td>1378</td>
+      <td>0.181260</td>
+      <td>True</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+      <td>170.202</td>
+    </tr>
+    <tr>
+      <th>172</th>
+      <td>SPX231020C04400000</td>
+      <td>2023-09-15 17:57:05+00:00</td>
+      <td>4400.0</td>
+      <td>112.51</td>
+      <td>105.20</td>
+      <td>114.20</td>
+      <td>-37.290000</td>
+      <td>-24.893192</td>
+      <td>131.0</td>
+      <td>13194</td>
+      <td>0.156396</td>
+      <td>True</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+      <td>116.777</td>
+    </tr>
+    <tr>
+      <th>177</th>
+      <td>SPX231020C04425000</td>
+      <td>2023-09-15 18:37:38+00:00</td>
+      <td>4425.0</td>
+      <td>92.60</td>
+      <td>87.40</td>
+      <td>96.10</td>
+      <td>-39.860010</td>
+      <td>-30.092108</td>
+      <td>381.0</td>
+      <td>4585</td>
+      <td>0.148938</td>
+      <td>True</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+      <td>101.362</td>
+    </tr>
+    <tr>
+      <th>182</th>
+      <td>SPX231020C04450000</td>
+      <td>2023-09-15 20:15:46+00:00</td>
+      <td>4450.0</td>
+      <td>75.70</td>
+      <td>71.40</td>
+      <td>78.80</td>
+      <td>-33.350006</td>
+      <td>-30.582306</td>
+      <td>1729.0</td>
+      <td>24370</td>
+      <td>0.141015</td>
+      <td>True</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+      <td>87.235</td>
+    </tr>
+    <tr>
+      <th>184</th>
+      <td>SPX231020C04460000</td>
+      <td>2023-09-15 19:59:25+00:00</td>
+      <td>4460.0</td>
+      <td>68.20</td>
+      <td>65.40</td>
+      <td>72.50</td>
+      <td>-38.900000</td>
+      <td>-36.321198</td>
+      <td>138.0</td>
+      <td>945</td>
+      <td>0.138356</td>
+      <td>False</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+      <td>81.951</td>
+    </tr>
+    <tr>
+      <th>187</th>
+      <td>SPX231020C04475000</td>
+      <td>2023-09-15 19:59:28+00:00</td>
+      <td>4475.0</td>
+      <td>59.20</td>
+      <td>56.70</td>
+      <td>63.40</td>
+      <td>-35.800000</td>
+      <td>-37.684210</td>
+      <td>640.0</td>
+      <td>4152</td>
+      <td>0.134286</td>
+      <td>False</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+      <td>74.418</td>
+    </tr>
+    <tr>
+      <th>190</th>
+      <td>SPX231020C04490000</td>
+      <td>2023-09-15 19:55:10+00:00</td>
+      <td>4490.0</td>
+      <td>51.70</td>
+      <td>46.80</td>
+      <td>56.90</td>
+      <td>-28.999996</td>
+      <td>-35.935560</td>
+      <td>715.0</td>
+      <td>2143</td>
+      <td>0.134030</td>
+      <td>False</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+      <td>67.357</td>
+    </tr>
+    <tr>
+      <th>195</th>
+      <td>SPX231020C04515000</td>
+      <td>2023-09-15 20:14:50+00:00</td>
+      <td>4515.0</td>
+      <td>40.80</td>
+      <td>38.90</td>
+      <td>40.50</td>
+      <td>-21.830002</td>
+      <td>-34.855503</td>
+      <td>163.0</td>
+      <td>923</td>
+      <td>0.121061</td>
+      <td>False</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+      <td>56.625</td>
+    </tr>
+    <tr>
+      <th>198</th>
+      <td>SPX231020C04530000</td>
+      <td>2023-09-15 20:10:09+00:00</td>
+      <td>4530.0</td>
+      <td>33.45</td>
+      <td>32.00</td>
+      <td>34.70</td>
+      <td>-22.849998</td>
+      <td>-40.586143</td>
+      <td>208.0</td>
+      <td>875</td>
+      <td>0.119352</td>
+      <td>False</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+      <td>50.795</td>
+    </tr>
+    <tr>
+      <th>200</th>
+      <td>SPX231020C04540000</td>
+      <td>2023-09-15 19:57:06+00:00</td>
+      <td>4540.0</td>
+      <td>29.23</td>
+      <td>28.20</td>
+      <td>30.80</td>
+      <td>-22.560001</td>
+      <td>-43.560535</td>
+      <td>103.0</td>
+      <td>842</td>
+      <td>0.117528</td>
+      <td>False</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+      <td>47.155</td>
+    </tr>
+    <tr>
+      <th>202</th>
+      <td>SPX231020C04550000</td>
+      <td>2023-09-15 20:09:01+00:00</td>
+      <td>4550.0</td>
+      <td>25.67</td>
+      <td>25.50</td>
+      <td>26.50</td>
+      <td>-20.330000</td>
+      <td>-44.195652</td>
+      <td>2489.0</td>
+      <td>20634</td>
+      <td>0.114286</td>
+      <td>False</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+      <td>43.709</td>
+    </tr>
+    <tr>
+      <th>203</th>
+      <td>SPX231020C04555000</td>
+      <td>2023-09-15 18:51:51+00:00</td>
+      <td>4555.0</td>
+      <td>24.98</td>
+      <td>23.70</td>
+      <td>25.10</td>
+      <td>-19.300000</td>
+      <td>-43.586270</td>
+      <td>128.0</td>
+      <td>1058</td>
+      <td>0.114045</td>
+      <td>False</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+      <td>42.057</td>
+    </tr>
+    <tr>
+      <th>212</th>
+      <td>SPX231020C04600000</td>
+      <td>2023-09-15 20:15:46+00:00</td>
+      <td>4600.0</td>
+      <td>13.35</td>
+      <td>12.90</td>
+      <td>13.40</td>
+      <td>-13.740000</td>
+      <td>-50.719822</td>
+      <td>6032.0</td>
+      <td>32512</td>
+      <td>0.107988</td>
+      <td>False</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+      <td>29.210</td>
+    </tr>
+    <tr>
+      <th>222</th>
+      <td>SPX231020C04650000</td>
+      <td>2023-09-15 20:10:09+00:00</td>
+      <td>4650.0</td>
+      <td>6.05</td>
+      <td>5.80</td>
+      <td>6.40</td>
+      <td>-6.950000</td>
+      <td>-53.461540</td>
+      <td>2100.0</td>
+      <td>15093</td>
+      <td>0.105020</td>
+      <td>False</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+      <td>18.753</td>
+    </tr>
+    <tr>
+      <th>226</th>
+      <td>SPX231020C04670000</td>
+      <td>2023-09-15 18:49:36+00:00</td>
+      <td>4670.0</td>
+      <td>4.20</td>
+      <td>4.10</td>
+      <td>4.50</td>
+      <td>-5.200000</td>
+      <td>-55.319150</td>
+      <td>305.0</td>
+      <td>994</td>
+      <td>0.103380</td>
+      <td>False</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+      <td>15.527</td>
+    </tr>
+    <tr>
+      <th>251</th>
+      <td>SPX231020C04800000</td>
+      <td>2023-09-15 19:59:57+00:00</td>
+      <td>4800.0</td>
+      <td>0.50</td>
+      <td>0.45</td>
+      <td>0.65</td>
+      <td>-0.600000</td>
+      <td>-54.545456</td>
+      <td>4926.0</td>
+      <td>9607</td>
+      <td>0.106881</td>
+      <td>False</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+      <td>3.871</td>
+    </tr>
+    <tr>
+      <th>274</th>
+      <td>SPX231020C05050000</td>
+      <td>2023-09-15 19:06:34+00:00</td>
+      <td>5050.0</td>
+      <td>0.07</td>
+      <td>0.00</td>
+      <td>0.15</td>
+      <td>-0.080000</td>
+      <td>-53.333336</td>
+      <td>401.0</td>
+      <td>1130</td>
+      <td>0.142587</td>
+      <td>False</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+      <td>0.121</td>
+    </tr>
+    <tr>
+      <th>276</th>
+      <td>SPX231020C05100000</td>
+      <td>2023-09-15 19:24:41+00:00</td>
+      <td>5100.0</td>
+      <td>0.07</td>
+      <td>0.05</td>
+      <td>0.15</td>
+      <td>-0.030000</td>
+      <td>-30.000002</td>
+      <td>146.0</td>
+      <td>4851</td>
+      <td>0.152596</td>
+      <td>False</td>
+      <td>REGULAR</td>
+      <td>USD</td>
+      <td>0.054</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[48]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">savedata</span> <span class="o">=</span> <span class="n">calls</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s2">"SPXCall201023Daticonprezzo.csv"</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[34]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">'Strike'</span><span class="p">:</span> <span class="n">calls</span><span class="p">[</span><span class="s2">"strike"</span><span class="p">],</span> <span class="s1">'MarketPrice'</span><span class="p">:</span> <span class="n">calls</span><span class="p">[</span><span class="s2">"lastPrice"</span><span class="p">],</span> <span class="s2">"BSPrice"</span><span class="p">:</span> <span class="n">calls</span><span class="p">[</span><span class="s2">"OptionPrice"</span><span class="p">]})</span>
+<span class="n">df</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[34]:</div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Strike</th>
+      <th>MarketPrice</th>
+      <th>BSPrice</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>4</th>
+      <td>1000.0</td>
+      <td>3472.87</td>
+      <td>3455.562</td>
+    </tr>
+    <tr>
+      <th>70</th>
+      <td>3825.0</td>
+      <td>647.37</td>
+      <td>645.375</td>
+    </tr>
+    <tr>
+      <th>157</th>
+      <td>4325.0</td>
+      <td>169.48</td>
+      <td>170.202</td>
+    </tr>
+    <tr>
+      <th>172</th>
+      <td>4400.0</td>
+      <td>112.51</td>
+      <td>116.777</td>
+    </tr>
+    <tr>
+      <th>177</th>
+      <td>4425.0</td>
+      <td>92.60</td>
+      <td>101.362</td>
+    </tr>
+    <tr>
+      <th>182</th>
+      <td>4450.0</td>
+      <td>75.70</td>
+      <td>87.235</td>
+    </tr>
+    <tr>
+      <th>184</th>
+      <td>4460.0</td>
+      <td>68.20</td>
+      <td>81.951</td>
+    </tr>
+    <tr>
+      <th>187</th>
+      <td>4475.0</td>
+      <td>59.20</td>
+      <td>74.418</td>
+    </tr>
+    <tr>
+      <th>190</th>
+      <td>4490.0</td>
+      <td>51.70</td>
+      <td>67.357</td>
+    </tr>
+    <tr>
+      <th>195</th>
+      <td>4515.0</td>
+      <td>40.80</td>
+      <td>56.625</td>
+    </tr>
+    <tr>
+      <th>198</th>
+      <td>4530.0</td>
+      <td>33.45</td>
+      <td>50.795</td>
+    </tr>
+    <tr>
+      <th>200</th>
+      <td>4540.0</td>
+      <td>29.23</td>
+      <td>47.155</td>
+    </tr>
+    <tr>
+      <th>202</th>
+      <td>4550.0</td>
+      <td>25.67</td>
+      <td>43.709</td>
+    </tr>
+    <tr>
+      <th>203</th>
+      <td>4555.0</td>
+      <td>24.98</td>
+      <td>42.057</td>
+    </tr>
+    <tr>
+      <th>212</th>
+      <td>4600.0</td>
+      <td>13.35</td>
+      <td>29.210</td>
+    </tr>
+    <tr>
+      <th>222</th>
+      <td>4650.0</td>
+      <td>6.05</td>
+      <td>18.753</td>
+    </tr>
+    <tr>
+      <th>226</th>
+      <td>4670.0</td>
+      <td>4.20</td>
+      <td>15.527</td>
+    </tr>
+    <tr>
+      <th>251</th>
+      <td>4800.0</td>
+      <td>0.50</td>
+      <td>3.871</td>
+    </tr>
+    <tr>
+      <th>274</th>
+      <td>5050.0</td>
+      <td>0.07</td>
+      <td>0.121</td>
+    </tr>
+    <tr>
+      <th>276</th>
+      <td>5100.0</td>
+      <td>0.07</td>
+      <td>0.054</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
 </div>
 </body>
 
